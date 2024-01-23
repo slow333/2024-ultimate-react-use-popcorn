@@ -1,4 +1,4 @@
-import {useState} from "react";
+import React, {useState} from "react";
 
 const tempMovieData = [
   {
@@ -48,90 +48,112 @@ const tempWatchedData = [
 ];
 
 const average = (arr) =>
-     arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
+     arr.reduce((acc, cur, idx, arr) => acc + cur / arr.length, 0);
 
 export default function App() {
   const [movies, setMovies] = useState(tempMovieData);
+  const [watched, setWatched] = useState(tempWatchedData);
 
   return (
        <>
-         <Nav  movies={movies}/>
-         <main className="main">
-           <MovieBox movies={movies}/>
-           <WatchedBox />
-
-         </main>
+         <NavBar>
+           <Search />
+           <NumResults movies={movies}/>
+         </NavBar>
+         <Main>
+           <Box>
+             <List values={movies}>
+               <Movie />
+             </List>
+           </Box>
+           <Box>
+             <WatchedMovieSummary watched={watched}/>
+             <List values={watched} >
+               <WatchedMovieDetail />
+             </List>
+           </Box>
+         </Main>
        </>
   );
 }
 
-function Nav({movies}) {
-  const [query, setQuery] = useState("");
-
+function NavBar({ children }) {
   return (
        <nav className="nav-bar">
-         <div className="logo">
-           <span role="img">🍿</span>
-           <h1>usePopcorn</h1>
-         </div>
-         <input
-              className="search"
-              type="text"
-              placeholder="Search movies..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-         />
-         <p className="num-results">
-           Found <strong>{movies.length}</strong> results
-         </p>
+         <Logo />
+         {children}
        </nav>
   )
 }
+function Logo() {
+  return (
+       <div className="logo">
+         <span role="img">🍿</span>
+         <h1>usePopcorn</h1>
+       </div>
+  )
+}
+function Search() {
+  const [query, setQuery] = useState("");
 
-function MovieBox({movies}) {
+  return (
+       <input
+            className="search"
+            type="text"
+            placeholder="Search movies..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+       />
+  )
+}
+function NumResults({movies}) {
+  return (
+       <p className="num-results">
+         Found <strong>{movies.length}</strong> results
+       </p>
+  )
+}
+
+function Main({children}) {
+  return (
+       <main className="main">
+         {children}
+       </main>
+  )
+}
+
+function Box({children}) {
   const [isOpen, setIsOpen] = useState(true);
   return (
        <div className="box">
          <Button isOpen={isOpen} setIsOpen={setIsOpen}/>
-         {isOpen && (
-              <ul className="list">
-                {movies?.map((movie) => (
-                     <Movie movie={movie} key={movie.imdbID}/>
-                ))}
-              </ul>
-         )}
+         {isOpen && children }
        </div>
   )
 }
+function List({values, children}) {
+  return (
+       <ul className="list">
+         {values?.map((value) => (
+              React.cloneElement(children,
+                   { movie: value, key: value.imdbID })
+         ))}
+       </ul>
+  )
+}
+
 function Movie({movie}) {
   return (
        <li>
          <img src={movie.Poster} alt={`${movie.Title} poster`}/>
          <h3>{movie.Title}</h3>
          <div>
-           <p>
+         <p>
              <span>🗓</span>
              <span>{movie.Year}</span>
            </p>
          </div>
        </li>
-  )
-}
-
-function WatchedBox() {
-  const [watched, setWatched] = useState(tempWatchedData);
-  const [isOpen, setIsOpen] = useState(true);
-
-  return (
-       <div className="box">
-         <Button isOpen={isOpen} setIsOpen={setIsOpen}/>
-         {isOpen && (
-              <>
-                <WatchedMovieSummary watched={watched}/>
-                <WatchedMovieList watched={watched}/>
-              </>
-         )}
-       </div>
   )
 }
 
@@ -165,16 +187,7 @@ function WatchedMovieSummary({watched}) {
   )
 }
 
-function WatchedMovieList({watched}) {
-  return (
-       <ul className="list">
-         {watched.map((movie) => (
-              <WatchedMovie movie={movie} key={movie.imdbID}/>
-         ))}
-       </ul>
-  )
-}
-function WatchedMovie({movie}){
+function WatchedMovieDetail({movie}){
   return (
        <li>
          <img src={movie.Poster} alt={`${movie.Title} poster`}/>
