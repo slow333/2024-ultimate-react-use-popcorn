@@ -2,10 +2,10 @@ import React, {useState} from "react";
 import PropTypes from "prop-types";
 
 const containerStyle = {
-  display: 'flex', alignItems: 'center', gap: '16px'
+  display: 'flex', alignItems: 'center', gap: '12px'
 }
 const startContainerStyle = {
-  display: 'flex', gap: '4px'
+  display: 'flex', gap: '1px'
 }
 
 StarRating.prototype = {
@@ -34,7 +34,7 @@ function StarRating({
 
   function handleRating(rating) {
     setRating(rating)
-    onSetRating(rating)
+    // onSetRating(rating)
   }
 
   return (
@@ -52,7 +52,7 @@ function StarRating({
          <p style={textStyle}> {
            maxRating === messages.length
                 ? messages[tempRating ? tempRating - 1 : rating - 1]
-                : rating || ''}</p>
+                : tempRating || rating || ''}</p>
        </div>
   );
 }
