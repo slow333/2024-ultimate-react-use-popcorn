@@ -55,7 +55,7 @@ const KEY = "7c0d2be6"
 export default function App() {
   const [query, setQuery] = useState("war");
   const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState(tempWatchedData);
+  const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [selectedId, setSelectedId] = useState(null)
@@ -98,11 +98,9 @@ export default function App() {
   function handleSelectedId(id) {
     setSelectedId(selectedId => selectedId === id ? null : id)
   }
+
   function handleAddWatched(movie) {
-    const isContain = watched.find(watched => watched.imdbID === movie.imdbID)
-    { isContain
-         ? setWatched(watched => [...watched])
-         : setWatched(watched => [...watched, movie])}
+     setWatched(watched => [...watched, movie])
     setSelectedId(null)
   }
 
@@ -126,6 +124,7 @@ export default function App() {
                        selectedId={selectedId}
                        onCloseMovie={handleCloseSelectedMovie}
                        onAddWatched={handleAddWatched}
+                       watched={watched}
                   />
                   : <>
                     <WatchedMovieSummary watched={watched}/>
@@ -251,14 +250,17 @@ function ListWatched({values}) {
   )
 }
 
-function SelectedMovie({selectedId, onCloseMovie, onAddWatched}) {
+function SelectedMovie({selectedId, onCloseMovie, onAddWatched, watched}) {
   const [movieDetails, setMovieDetails] = useState({});
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
+  const [userRating, setUserRating] = useState('');
+  const isWatched = watched.find(movie => movie.imdbID === selectedId);
+  const watchedUserRating = watched.find(movie => movie.imdbID === selectedId)?.userRating;
   const searchUrl = `http://www.omdbapi.com/?apikey=${KEY}&i=${selectedId}`
   const {
     Title: title, Year: year,
     Poster: poster, Runtime: runtime, imdbRating, Plot: plot, Released: released,
-    Actors: actors, Director: director, Genre: genre, Country: country,imdbID,
+    Actors: actors, Director: director, Genre: genre, imdbID,
   } = movieDetails;
 
   useEffect(() => {
@@ -286,10 +288,13 @@ function SelectedMovie({selectedId, onCloseMovie, onAddWatched}) {
 
   function handleAdd() {
     const newMovie = {
-      imdbID:imdbID, Title: title, Year: year, Poster: poster, runtime: runtime.split(' ').at(0) && 0,
-    imdbRating: imdbRating, userRating: "5"}
+      imdbID: imdbID, Title: title, Year: year, Poster: poster,
+      runtime: Number(runtime.split(' ').at(0) || 0),
+      imdbRating: Number(imdbRating), userRating
+    }
     onAddWatched(newMovie);
   }
+
 
   return (
        <div className="details">
@@ -308,8 +313,13 @@ function SelectedMovie({selectedId, onCloseMovie, onAddWatched}) {
                 </header>
                 <section>
                   <div className="rating">
-                    <StarRating maxRating={10} fullColor="yellow" size={24} key={selectedId}/>
-                    <button className="btn-add" onClick={handleAdd}>Add movie</button>
+                    {isWatched ? <p>이미 봤어요. rating : {watchedUserRating}</p> : <>
+                      <StarRating maxRating={10} fullColor="yellow" size={24} key={selectedId}
+                                  onSetRating={setUserRating}/>
+                      {userRating > 0 &&
+                           <button className="btn-add" onClick={handleAdd}>+ Add movie</button>}
+                    </> }
+
                   </div>
                   <p><em>{plot}</em></p>
                   <p>Starring {actors}</p>
