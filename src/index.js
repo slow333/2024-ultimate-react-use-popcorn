@@ -4,12 +4,13 @@ import StarRating, {Test} from "./StarRating";
 import TextExpander from "./textExpander/TextExpander";
 import App from "./App";
 import './index.css';
+import StarRating2 from "./StarRating2";
 // import App from './App';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
      <React.StrictMode>
-       {/*<StarRating/>*/}
+       {/*<StarRating2 maxRating={5}/>*/}
        {/*<StarRating size={40} fullColor="#0f0" messages={['Terrible', 'bad', 'Okay', 'good', 'excellent']}/>*/}
        {/*<StarRating size={50} fullColor="#0fe" maxRating={9} defaultRating={4}/>*/}
        {/*<TextExpander/>*/}
